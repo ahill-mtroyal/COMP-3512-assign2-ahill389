@@ -12,7 +12,7 @@ function generateHead(titleArg){
     const head =  document.querySelector('head');
     //meta tags
     const charset = document.createElement('meta');
-    charset.charset = 'UTF-8';
+    charset.setAttribute('charset','UTF-8');
     head.appendChild(charset);
     head.appendChild(createMetaTag('description','COMP 3512 - Assignment #2 - Alexander Hilliard'));
     head.appendChild(createMetaTag('author','Alexander Hilliard'));
@@ -25,12 +25,13 @@ function generateHead(titleArg){
     const css = document.createElement('link');
     css.href = 'css/general.css';
     css.rel = 'stylesheet';
+    head.appendChild(css);
     
 }
 
 //generate meta tag - used in generateHead()
 function createMetaTag(name,content){
-    const meta = document.createElement(meta);
+    const meta = document.createElement('meta');
     meta.name = name;
     meta.content = content;
     return meta;

@@ -1,0 +1,242 @@
+/*Colours & some design ideas mimicked from formula1.com (i'm unoriginal) - No code was copied or viewed, just poorly remade*/
+
+body {  
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+    font-family: Tahoma, sans-serif;
+    align-items: center;
+    background-color: rgb(24, 26, 27);
+    color: white;
+    display:grid;
+}
+
+header {
+    background-color: rgb(24, 26, 27);
+    margin: 0px 0px 0px 0px;
+    list-style-type: none;
+    padding: 0px 10px;
+    align-items: center;
+    color: rgb(225,6,0);
+    border-bottom: solid white 3px;
+    box-sizing: border-box;
+}
+
+aside {
+    height: 100%;
+    background-color: rgb(0, 0, 0);
+    text-align: center;
+    box-sizing: border-box;
+    padding:10px;
+}
+
+.content {
+    background-color: rgb(24, 26, 27);
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0px 20px 10px;
+    text-align: center;
+}
+
+.contentNoAside {
+    background-color: rgb(24, 26, 27);
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0px 20px 10px;
+    text-align: center;
+}
+
+.content table, .contentNoAside table {
+    text-align: left;
+    width: 100%;
+}
+
+.content tr:nth-child(even), .contentNoAside tr:nth-child(even){
+    background-color: rgb(50, 54, 56);
+}
+
+#headerTwoColumn {
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.resultsHeader {
+    grid-area: 1 / 1 / span 1 / span 2;
+}
+
+.qualifying {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.results {
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.podiumContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+}
+
+a:link {
+    color: white;
+}
+
+a:visited {
+    color: white;
+}
+
+a:hover {
+    color: rgb(255,6,0)
+}
+
+.button {
+    background-color: rgb(180,5,0);
+    color: white;
+    border-style: solid;
+    border-color:rgb(180,5,0);
+    border-radius: 10px;
+    border-width: 2px;
+    padding: 15px;
+    margin: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    text-wrap: nowrap;
+}
+
+aside .button {
+    padding: 5px 10px;
+}
+
+.buttonWrapper {
+    margin: 25px 0px;
+}
+
+.button:hover {
+    background: rgb(24, 26, 27);
+    transition-duration: .4s;
+    color: white;
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.title img {
+    margin-right: 5px;
+}
+
+.browse_table {
+    width: 100%;
+}
+
+.browse_table tr {
+    width: 100%;
+    text-align: left;
+}
+
+.browse_table th, .browse_table td {
+    padding: 10px 5px;
+    align-items: center;
+}
+
+.car {
+    width: 100%;
+    height: auto;
+}
+
+@media only screen and (max-width: 790px){
+    body {
+        color: red;
+        grid-template-columns: 1fr;
+        grid-template-rows: min-content auto auto;
+    }
+    
+    header{
+        grid-area: 1 / 1 / span 1 / span 1;
+        height: 150px;
+    }
+
+    aside {
+        grid-area: 2 / 1 / span 1 / span 1;
+    }
+
+    .content{
+        grid-area: 3 / 1 / span 1 / span 1;
+    }
+
+    .contentNoAside{
+        grid-area: 3 / 1 / span 1 / span 1;
+    }
+
+    #headerTwoColumn{
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: 200px auto auto;
+    }
+
+    .qualifying {
+        grid-area: 2 / 1 / span 1 / span 1;
+        width: 100%;
+    }
+
+    .results {
+        grid-area: 3 / 1 / span 1 / span 1;
+    }
+
+}
+
+
+@media only screen and (min-width: 791px){
+    body {
+        color: white;
+        grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+        grid-template-rows: min-content auto;
+    }
+    
+    header{
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: nowrap;
+        grid-area: 1 / 1 / span 1 / span 5;
+        height: 100%;
+    }
+
+    aside {
+        grid-area: 2 / 1 / span 1 / span 1;
+    }
+
+    .content{
+        grid-area: 2 / 2 / span 1 / span 4;
+        border-left: solid white 3px;
+    }
+
+    .contentNoAside{
+        grid-area: 2 / 1 / span 1 / span 5;
+    }
+
+    #headerTwoColumn{
+        display: grid;
+        grid-template-columns: auto auto;
+        grid-template-rows: 200px auto;
+    }
+
+    .qualifying {
+        grid-area: 2 / 1 / span 1 / span 1;
+    }
+
+    .results {
+        grid-area: 2 / 2 / span 1 / span 1;
+    }
+
+}

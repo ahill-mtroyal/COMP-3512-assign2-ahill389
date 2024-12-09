@@ -2,8 +2,8 @@
 //api domain
 const domain = 'https://www.randyconnolly.com/funwebdev/3rd/api/f1'
 
-//retrieves season data into local storage if not already present, then executes passed function (displayRaces probably)
-function getSeasonData(season, displayRaces){
+//retrieves season data into local storage if not already present, then executes passed functions (generateRaceList & displayRaces probably)
+function getSeasonData(season, generateRaceList,displayRaces){
     const racesKey = `races${season}`;
     const resultsKey = `results${season}`;
     const qualifyingKey = `qualifying${season}`;
@@ -18,7 +18,8 @@ function getSeasonData(season, displayRaces){
     let racesData = checkLocalStorage(racesKey);
     if(racesData){
         //season data is in storage - proceed with displaying information
-        displayRaces(racesData);
+        generateRaceList(season,racesData);
+        displayRaces(season)
     } else {
         //season data is not in storage - fetch & add to local storage before displaying race list
         //these vars are promises
@@ -41,7 +42,8 @@ function getSeasonData(season, displayRaces){
                 submitLocalStorage(racesKey,races)
                 submitLocalStorage(resultsKey,results)
                 submitLocalStorage(qualifyingKey,qualifying)
-                displayRaces(races)
+                generateRaceList(season,races)
+                displayRaces(season)
             }).catch(error => errorHandler(error))
     }
 }

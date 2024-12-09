@@ -94,10 +94,6 @@ a:visited {
     color: white;
 }
 
-a:hover {
-    color: rgb(255,6,0)
-}
-
 .button {
     background-color: rgb(180,5,0);
     color: white;
@@ -105,8 +101,7 @@ a:hover {
     border-color:rgb(180,5,0);
     border-radius: 10px;
     border-width: 2px;
-    padding: 15px;
-    margin: 20px;
+    margin: 5px;
     text-decoration: none;
     font-weight: bold;
     text-wrap: nowrap;
@@ -145,14 +140,19 @@ aside .button {
     text-align: left;
 }
 
-.browse_table th, .browse_table td {
-    padding: 10px 5px;
-    align-items: center;
-}
-
 .car {
     width: 100%;
     height: auto;
+}
+
+#seasonSelect {
+    padding-top: 10px;
+}
+
+#seasonSelect select {
+    width: 200px;
+    font-size: x-large;
+    text-align: center;
 }
 
 @media only screen and (max-width: 790px){

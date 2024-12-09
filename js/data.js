@@ -1,6 +1,6 @@
 /* DATA & STORAGE RELATED FUNCTIONS */
 //api domain
-const domain = 'https://www.randyconnolly.com/funwebdev/3rd/api/f1 '
+const domain = 'https://www.randyconnolly.com/funwebdev/3rd/api/f1'
 
 //retrieves season data into local storage if not already present, then executes passed function (displayRaces probably)
 function getSeasonData(season, displayRaces){
@@ -22,21 +22,27 @@ function getSeasonData(season, displayRaces){
     } else {
         //season data is not in storage - fetch & add to local storage before displaying race list
         //these vars are promises
-        racesData = fetchData(racesURL);
-        let resultsData = fetchData(resultsURL);
-        let qualifyingData = fetchData(qualifyingURL);
+        racesData = fetch(racesURL).then(resp => {
+            if (resp.ok) {return resp.json()}
+            else {throw new Error(`Problem fetching ${racesURL}`)}
+        })
+        let resultsData = fetch(resultsURL).then(resp => {
+            if (resp.ok) {return resp.json()}
+            else {throw new Error(`Problem fetching ${resultsURL}`)}
+        })
+        let qualifyingData = fetch(qualifyingURL).then(resp => {
+            if (resp.ok) {return resp.json()}
+            else {throw new Error(`Problem fetching ${qualifyingURL}`)}
+        })
 
-        let dataArray = [racesData,resultsData,qualifyingData];
-        
-        //add all data to local storage, then display races
-        Promise.all(dataArray)
-            .then(resolves => {
-                [racesData,resultsData,qualifyingData] = resolves;
-                submitLocalStorage(racesKey,racesData);
-                submitLocalStorage(resultsKey,resultsData);
-                submitLocalStorage(qualifyingKey,qualifyingData)
-                displayRaces(racesData)
-            })
+        Promise.all([racesData,resultsData,qualifyingData])
+            .then(resolves =>{
+                const [races,results,qualifying] = resolves;
+                submitLocalStorage(racesKey,races)
+                submitLocalStorage(resultsKey,results)
+                submitLocalStorage(qualifyingKey,qualifying)
+                displayRaces(races)
+            }).catch(error => errorHandler(error))
     }
 }
 
@@ -45,20 +51,23 @@ function getSeasonData(season, displayRaces){
 //usage example: getLocalData(races,2023,raceId,123,displayRaces) -> function compares raceId attribute of retrieved data (races2023 from localStorage) against attributeName while filtering data
 //NOTE: I'm not sure if this implementation is prefered. I would be interested in improved implementation suggestions. It consolidates ~4 similar functions into 1, but I'm unsure if it could be more concise (particularly with the arguments).
 function getLocalData(keyPrefix,season,attributeName,attributeValue,displayFunc){
-    console.log(`Invoking checkLocalStorage with ${keyPrefix}${season}`)
     let localData = checkLocalStorage(`${keyPrefix}${season}`);
+    console.log(localData);
     let filtered = [];
 
     //filter data with provided attribute
     switch(attributeName){
         case 'raceId':
-            filtered = localData.filter(d => {d.raceId == attributeValue});
+            console.log(`filtering by raceid`)
+            filtered = localData.filter(d => d.race.id == attributeValue);
             break;
         case 'constructorId':
-            filtered = localData.filter(d => {d.constructorId == attributeValue});
+            console.log(`filtering by constructorId`)
+            filtered = localData.filter(d => d.constructor.id == attributeValue);
             break;
         case 'driverId':
-            filtered = data.filter(d => {d.driverId == attributeValue});
+            console.log(`filtering by driverId`)
+            filtered = localData.filter(d => d.driver.id == attributeValue);
             break;
     }
 
@@ -76,17 +85,21 @@ function getCircuits(circuitId, displayCircuit){
     console.log(`Invoking checkLocalStorage with ${circuitsKey}`)
     let circuitsData = checkLocalStorage(circuitsKey);
 
-    if(circuitData){
+    if(circuitsData){
         //data was in local storage -> filter results for specific circuit & execute function
         specifiedCircuit = circuitsData.find(c => c.ciruitId == circuitId);
         displayCircuit(specifiedCircuit);
     } else {
         //data was not in local storage -> fetch, submit to storage, then filter results for specific circuit & execute function
-        circuitsData = fetchData(circuitsURL)
-                        .then(data =>{
-                            submitToStorage(circuitsKey,data);
-                            specifiedCircuit = data.find(c => c.circuitId == circuitId);
-                            displayCircuit(data);
+        circuitsData = fetch(circuitsURL)
+                        .then(resp =>{
+                            if (resp.ok) {return resp.json()}
+                            else {throw new Error(`Problem with fetching ${circuitsURL}`)}
+                        })
+                        .then(data => {
+                            submitLocalStorage(circuitsKey,data);
+                            let filtered = data.filter(d => d.circuitId == circuitId)
+                            displayCircuit(filtered)
                         })
     }
 }
@@ -105,18 +118,6 @@ function checkLocalStorage(key){
 function submitLocalStorage(key,data){
     localStorage.removeItem(key)
     localStorage.setItem(key,JSON.stringify(data));
-}
-
-//wrapper for fetch function - returns promise of requested data with error defined
-function fetchData(url){
-    fetch(url)
-        .then(resp => {
-        if (resp.ok){
-            return resp.json();
-        } else {
-            throw new Error(`Could not fetch data from ${url}`)
-        }
-    }).catch(error => errorHandler(error));
 }
 
 //function for error handling fetches

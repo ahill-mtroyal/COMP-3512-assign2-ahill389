@@ -2,8 +2,7 @@ import * as data from './data.js';
 
 document.addEventListener('DOMContentLoaded', ()=>{
 
-    //loadData()
-    debug()
+    // debug()
     generateHead('F1 Dashboard Project')
     generateHeader()
     //generateAside()
@@ -93,8 +92,8 @@ function generateAsideHome(){
 }
 
 function debug(){
+    localStorage.clear();
     console.log('fetch testing')
-    console.log('getSeasonData')
     data.getSeasonData('2023', races=>{
         console.log(races)
     })
@@ -107,11 +106,11 @@ function debug(){
         data.getLocalData('results','2023','raceId','1116',d=>{
             console.log(d)
         })
-        console.log('getLocalData - constructor')
-        data.getLocalData('results','2023','driverId','hamilton',d=>{
+        console.log('getLocalData - driver')
+        data.getLocalData('results','2023','driverId','830',d=>{
             console.log(d)
         })
-        console.log('getLocalData - driver')
+        console.log('getLocalData - constructor')
         data.getLocalData('results','2023','constructorId','1',d=>{
             console.log(d)
         })

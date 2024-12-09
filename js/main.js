@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     generateHeader()
     generateAside()
     generateContent()
+    generatePopup()
 
 })
 
@@ -90,6 +91,7 @@ function generateAside(){
     aside.appendChild(generateAsideHome());
 }
 
+//hide all aside elements but the specified
 function activateAside(id){
     //make all hidden
     hideAllAside()
@@ -98,12 +100,14 @@ function activateAside(id){
 
 }
 
+//generate content section elements
 function generateContent(){
     const content = document.querySelector('.content');
     content.appendChild(generateContentHome());
-
+    content.appendChild(generateContentRaceResults());
 }
 
+//hide all content elements but the specified
 function activateContent(id){
     //make all hidden
     hideAllContent();
@@ -113,13 +117,17 @@ function activateContent(id){
 
 //returns a div element for buttons - used by multiple functions
     //passed the button's text, a value attribute, and a function used for the button's listener
-function generateButton(label,value,eventFunction){
+function generateButton(label,value,season,eventFunction){
 
     const button = document.createElement('div');
     button.classList.add('button');
     button.textContent = label;
-    button.value = value;
-    button.addEventListener('click',eventFunction(value));
+    button.setAttribute('value',value);
+    button.setAttribute('season',season)
+    button.addEventListener('click', e => {
+        e.stopPropagation()
+        eventFunction(value,season)
+    });
     
     return button;
 }
@@ -148,10 +156,35 @@ function generateAsideHome(){
 
 //generate homescreen content
 function generateContentHome(){
-    const div = createDiv('homeContent');
+    const article = createArticle('homeContent');
     const img = createImg('./images/car.png','car','An F1 Car')
-    div.appendChild(img)
-    return div
+    article.appendChild(img)
+    return article
+}
+
+//generate skeleton for results content
+function generateContentRaceResults(){
+    const article = createArticle('raceContent')
+
+    //header
+    const headerDiv = createDiv();
+    headerDiv.classList.add('resultsHeader')
+
+    //qualifying
+    const qualifyingDiv = createDiv();
+    qualifyingDiv.classList.add('qualifying');
+
+    //results
+    const resultsDiv = createDiv();
+    resultsDiv.classList.add('results')
+
+    const contentChildren = [headerDiv,qualifyingDiv,resultsDiv]
+    contentChildren.forEach(c => article.appendChild(c))
+
+    article.style.display = 'none';
+
+    return article
+
 }
 
 function debug(){
@@ -206,6 +239,18 @@ function createDiv(id){
     return div;
 }
 
+function createA(id){
+    const a = document.createElement('a');
+    a.id = id;
+    return a;
+}
+
+function createArticle(id){
+    const article = document.createElement(`article`);
+    article.id = id;
+    return article;
+}
+
 //generate github button used in Aside Home
 function generateGithubButton(){
     const button = document.createElement('div')
@@ -233,7 +278,6 @@ function generateSeasonSelect(){
 
     //event to change aside & content
     select.addEventListener('change', e => {
-        console.log(`${e.target.value} selected`)
         const season = e.target.value
         //check default option not selected (would do nothing / error)
         if (season == 'Seasons') {
@@ -269,7 +313,7 @@ function generateRaceList(season,races){
     const h2 = createH2(`${season} Races`);
 
     //table
-    const table = document.createElement('table');
+    const table = createTable()
     table.classList.add('browse_table')
     const tableHead = createTr()
     const th = [createTh('Round'),createTh('Race'),createTh()]
@@ -281,7 +325,7 @@ function generateRaceList(season,races){
         const tdRnd = createTd(r.round)
         const tdRace = createTd(r.name)
         const tdButton = createTd()
-        tdButton.appendChild(generateButton('Results',r.id,displayContent))
+        tdButton.appendChild(generateButton('Results',r.id,season,displayContent))
         const tds = [tdRnd,tdRace,tdButton]
         tds.forEach(t => tr.appendChild(t))
         rows.push(tr);
@@ -298,25 +342,136 @@ function generateRaceList(season,races){
 
 //hide all other aside content, & display specified race list
 function displayRaces(season){
-    console.log(`displaying races for ${season}`)
     hideAllAside()
     document.querySelector(`#races${season}`).style.display = 'block'
 }
 
 //display requested content
-function displayContent(raceId){
-    displayQualifying(raceId)
-    displayResults(raceId)
+function displayContent(raceId,season){
+    activateContent('#raceContent');
+    displayContentHeader(raceId,season)
+    displayQualifying(raceId,season)
+    displayResults(raceId,season)
 }
 
-//return qualifying div of content
-function displayQualifying(){
+//populate content section header
+function displayContentHeader(raceId,season){
+    //have to get circuit data from storage, so passing function through data grabber
+    data.getLocalData('races',season,'raceId',raceId, filtered => {
+        const race = filtered.find(i => i.id === raceId)
+
+        const div = document.querySelector('.resultsHeader')
+        //clear current markup
+        clearElement(div)
+
+        const h2 = createH2(`Results for ${race.name}`)
+        const nameP = createP(`<b>${race.name}</b>`)
+        const roundP = createP(`<b>Round ${race.round} - </b>`)
+        const popupLink = document.createElement('b')
+        popupLink.appendChild(generatePopupLink(`${race.circuit.name}`,'cir',raceId))
+        roundP.appendChild(popupLink)
+        const locationP = createP(`<b>${race.circuit.location}, ${race.circuit.country}</b>`)
+        div.appendChild(h2)
+        div.appendChild(nameP)
+        div.appendChild(roundP)
+        div.appendChild(locationP)
+    })
+}
+
+//populate qualifying div of content with specified data -- encapsulate table creation into functions
+function displayQualifying(raceId,season){
+    data.getLocalData('qualifying',season,'raceId',raceId,d => {
+        //sort data by qual position
+        const sorted = d.sort((a,b) => {
+            return (a.position - b.position)
+        })
+
+        //select & clear qualfying section
+        const qual = document.querySelector('.qualifying')
+        clearElement(qual);
+
+        //populate
+        const title = createH2('Qualifying');
+        
+        //table
+        const table = createTable('');
+        const tableHead = createTr()
+        const tableHeaders = [createTh('Position'),createTh(''),createTh(''),createTh('Q1'),createTh('Q2'),createTh('Q3'),]
+        tableHeaders.forEach(t => tableHead.appendChild(t))
+        table.appendChild(tableHead)
+
+        //populate table data
+        sorted.forEach(d => {
+            const tr = createTr()
+            const tdPosition = createTd(d.position)
+            const tdDriver = createTd('')
+            tdDriver.appendChild(generatePopupLink(`${d.driver.forename} ${d.driver.surname}`,'d',d.driver.id))
+            const tdConstructor = createTd('')
+            tdConstructor.appendChild(generatePopupLink(`${d.constructor.name}`,'con',d.constructor.id))
+            const tdQ1 = createTd(d.q1)
+            const tdQ2 = createTd(d.q2)
+            const tdQ3 = createTd(d.q3)
+            const tds = [tdPosition,tdDriver,tdConstructor,tdQ1,tdQ2,tdQ3]
+            tds.forEach(t => tr.appendChild(t))
+            table.appendChild(tr)
+        })
+
+        qual.appendChild(title)
+        qual.appendChild(table)
+
+    });
 
 }
 
-//return results div of content
-function displayResults(){
+//populate results div of content with specified data - similar structure to displayQualifying
+function displayResults(raceId,season){
+    data.getLocalData('results',season,'raceId',raceId, d => {
+        //sort data by placing
+        const sorted = d.sort((a,b) =>{
+            return (a.position - b.position)
+        })
 
+        //select & clear results section
+        const res = document.querySelector('.results')
+        clearElement(res);
+
+        //populate
+        //title header
+        const title = createH2('Results');
+
+        //podium
+
+        //table
+        const table =createTable('');
+        const tableHead = createTr()
+        const tableHeaders = [createTh(`Position`),createTh(),createTh(),createTh(`Laps`),createTh(`Points`)]
+        tableHeaders.forEach(t => tableHead.appendChild(t))
+        table.appendChild(tableHead);
+
+        //populate table data
+        sorted.forEach(d => {
+            const tr = createTr()
+            const tdPosition = createTd(d.position)
+            const tdDriver = createTd('')
+            tdDriver.appendChild(generatePopupLink(`${d.driver.forename} ${d.driver.surname}`,'d',d.driver.id))
+            const tdConstructor = createTd('')
+            tdConstructor.appendChild(generatePopupLink(`${d.constructor.name}`,'con',d.constructor.id))
+            const tdLaps = createTd(d.laps)
+            const tdPoints = createTd(d.points)
+            const tds = [tdPosition,tdDriver,tdConstructor,tdLaps,tdPoints]
+            tds.forEach(t => tr.appendChild(t))
+            table.appendChild(tr)
+        })
+
+        res.appendChild(title)
+        res.appendChild(table)
+    })
+}
+
+//create table element
+function createTable(){
+    const table = document.createElement('table');
+    return table;
 }
 
 //create tr element
@@ -362,4 +517,77 @@ function hideAllContent(){
     for( let i = 0; i < contentChildren.length; i++){
         contentChildren[i].style.display = 'none'
     }
+}
+
+//returns popup link for driver/constructor/circuit links -> param: label, type: ('d','con','cir') - type of popup, identifier for data
+function generatePopupLink(label,type,id){
+    const div = createA(id);
+    div.classList.add('popupLink')
+    div.textContent = label
+    div.addEventListener('click', e =>{
+        e.stopPropagation()
+        popupEvent(type,id);
+    })
+    return div
+
+}
+
+//event function for popups
+function popupEvent(type,id){
+    console.log(`Popup event triggered with ${type},${id}`)
+    populatePopup(type,id)
+    showPopup()
+}
+
+//generate popup skeleton element
+function generatePopup(){
+    const body = document.querySelector('body')
+    
+    const div = createDiv('popup')
+    div.style.display = 'none'
+
+    body.appendChild(div)
+    
+}
+
+function populatePopup(type,id){
+    const popup = document.querySelector('#popup')   
+    clearElement(popup) 
+    
+    const closeButton = generateButton('Close',' ',' ',closePopupEvent)
+    closeButton.removeAttribute('value')
+    closeButton.removeAttribute('season')
+    closeButton.classList.add('close')
+
+    popup.appendChild(closeButton)
+
+}
+
+function showPopup() {
+    const popup = document.querySelector('#popup')
+    popup.style.display = 'block';
+    blurScreen()
+
+}
+
+function closePopupEvent(){
+    const popup = document.querySelector('#popup')
+    popup.style.display = 'none';
+    unBlurScreen()
+}
+
+function blurScreen(){
+    const header = document.querySelector('header')
+    const aside = document.querySelector('aside')
+    const content = document.querySelector('.content')
+    const toBlur = [header,aside,content]
+    toBlur.forEach(b => {b.style.filter = 'blur(5px)'})
+}
+
+function unBlurScreen(){
+    const header = document.querySelector('header')
+    const aside = document.querySelector('aside')
+    const content = document.querySelector('.content')
+    const toBlur = [header,aside,content]
+    toBlur.forEach(b => {b.style.filter = 'none'})
 }

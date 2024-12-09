@@ -14,7 +14,6 @@ function getSeasonData(season, generateRaceList,displayRaces){
     //if a season's race data is in storage, then results and qualifying probably are as well
     //this isn't a perfect assumption, but I suspect that even in full production solving this problem is more effort than it's worth
     //continuing with this assumption for now, but I may return to this later
-    console.log(`Invoking checkLocalStorage with ${racesKey}`)
     let racesData = checkLocalStorage(racesKey);
     if(racesData){
         //season data is in storage - proceed with displaying information
@@ -54,21 +53,19 @@ function getSeasonData(season, generateRaceList,displayRaces){
 //NOTE: I'm not sure if this implementation is prefered. I would be interested in improved implementation suggestions. It consolidates ~4 similar functions into 1, but I'm unsure if it could be more concise (particularly with the arguments).
 function getLocalData(keyPrefix,season,attributeName,attributeValue,displayFunc){
     let localData = checkLocalStorage(`${keyPrefix}${season}`);
-    console.log(localData);
     let filtered = [];
 
+    
     //filter data with provided attribute
     switch(attributeName){
         case 'raceId':
-            console.log(`filtering by raceid`)
-            filtered = localData.filter(d => d.race.id == attributeValue);
+            //handling case of searching race data - dont need race object identifier, just raceId
+            filtered = (keyPrefix == 'races') ? localData.filter(d => d.id == attributeValue) : localData.filter(d => d.race.id == attributeValue);
             break;
         case 'constructorId':
-            console.log(`filtering by constructorId`)
             filtered = localData.filter(d => d.constructor.id == attributeValue);
             break;
         case 'driverId':
-            console.log(`filtering by driverId`)
             filtered = localData.filter(d => d.driver.id == attributeValue);
             break;
     }
@@ -84,7 +81,6 @@ function getCircuits(circuitId, displayCircuit){
     let specifiedCircuit;
 
     //check local storage for data
-    console.log(`Invoking checkLocalStorage with ${circuitsKey}`)
     let circuitsData = checkLocalStorage(circuitsKey);
 
     if(circuitsData){

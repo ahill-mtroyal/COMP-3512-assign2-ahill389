@@ -1,15 +1,22 @@
+import * as data from './data.js';
+
 document.addEventListener('DOMContentLoaded', ()=>{
 
+    //loadData()
+    debug()
     generateHead('F1 Dashboard Project')
-    //generateHeaderContent()
+    generateHeader()
     //generateAside()
 
 })
 
-//functions
+/* FUNCTIONS */
+
+
 //generate head content
 function generateHead(titleArg){
     const head =  document.querySelector('head');
+
     //meta tags
     const charset = document.createElement('meta');
     charset.setAttribute('charset','UTF-8');
@@ -17,10 +24,12 @@ function generateHead(titleArg){
     head.appendChild(createMetaTag('description','COMP 3512 - Assignment #2 - Alexander Hilliard'));
     head.appendChild(createMetaTag('author','Alexander Hilliard'));
     head.appendChild(createMetaTag('viewport','width=device-width, initial-scale=1.0'));
+
     //title
     const title = document.createElement('title');
     title.textContent = titleArg;
     head.appendChild(title);
+
     //css sheet
     const css = document.createElement('link');
     css.href = 'css/general.css';
@@ -38,8 +47,77 @@ function createMetaTag(name,content){
 }
 
 //generate header content
-    //title
+function generateHeader(){
+    const header = document.querySelector('header');
 
-    //nav
+    //logo&title - button to reset page to initial 'home' state
+    const titleDiv = document.createElement('div');
+    titleDiv.classList.add('title');
+    titleDiv.style.cursor = 'pointer';
+
+    const logoImg = document.createElement('img');
+    logoImg.src = './images/F1-logo.png';
+    logoImg.alt = 'F1 Logo';
+    logoImg.width = '100';
+
+    const h1 = document.createElement('h1');
+    h1.textContent = ' Dashboard Project';
+
+    titleDiv.appendChild(logoImg);
+    titleDiv.appendChild(h1);
+
+    //event to reset page
+    titleDiv.addEventListener('click', ()=>{
+
+    })
+
+    header.appendChild(titleDiv);
+
+}
+
+//returns a div element for buttons - used by multiple functions
+    //passed the button's text, & and function used for the button's listener
+function generateButton(label,eventFunction){
+
+    const button = document.createElement('div');
+    button.classList.add('button');
+    button.textContent = label;
+    button.addEventListener('click',eventFunction);
+    
+    return button;
+}
 
 //generate aside
+function generateAsideHome(){
+
+}
+
+function debug(){
+    console.log('fetch testing')
+    console.log('getSeasonData')
+    data.getSeasonData('2023', races=>{
+        console.log(races)
+    })
+    setTimeout(()=>{
+        console.log('getLocalData - qualifying')
+        data.getLocalData('qualifying','2023','raceId','1116',d=>{
+            console.log(d)
+        })
+        console.log('getLocalData - results')
+        data.getLocalData('results','2023','raceId','1116',d=>{
+            console.log(d)
+        })
+        console.log('getLocalData - constructor')
+        data.getLocalData('results','2023','driverId','hamilton',d=>{
+            console.log(d)
+        })
+        console.log('getLocalData - driver')
+        data.getLocalData('results','2023','constructorId','1',d=>{
+            console.log(d)
+        })
+        console.log('getCircuits')
+        data.getCircuits('3',d=>{
+            console.log(d)
+        })
+    },5000)
+}

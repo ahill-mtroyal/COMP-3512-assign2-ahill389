@@ -625,6 +625,7 @@ function unBlurScreen(){
     toBlur.forEach(b => {b.style.filter = 'none'})
 }
 
+//populate popup div with driver results content based on driverId
 function popupDriverResults(popupContent,season,id){
     //driver popup
     const d = data.getResults(season);
@@ -676,6 +677,7 @@ function popupDriverResults(popupContent,season,id){
 
 }
 
+//populate popup div with constructor results content based on constructorId
 function popupConstructorResults(popupContent,season,id){
     //constructor popup
     const d = data.getResults(season);
@@ -725,6 +727,7 @@ function popupConstructorResults(popupContent,season,id){
     popupContent.appendChild(resultsContainer)
 }
 
+//populate popup div with circuit result content based on circuitId
 function popupCircuitResults(popupContent,season,id){
     const circuit = data.getCircuit(season,id);
     console.log(circuit);

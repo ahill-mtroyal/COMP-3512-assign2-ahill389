@@ -74,33 +74,45 @@ function getLocalData(keyPrefix,season,attributeName,attributeValue,displayFunc)
 
 }
 
-//retrieves circuit data into local storage if not already present, filters data by circuitId, then executes passed function (display circuit probably) - similar structure to getSeasonData, just only looking at circuits
-function getCircuits(circuitId, displayCircuit){
-    const circuitsKey = `circuits`;
-    const circuitsURL = `${domain}/circuits.php`;
-    let specifiedCircuit;
-
-    //check local storage for data
-    let circuitsData = checkLocalStorage(circuitsKey);
-
-    if(circuitsData){
-        //data was in local storage -> filter results for specific circuit & execute function
-        specifiedCircuit = circuitsData.find(c => c.ciruitId == circuitId);
-        displayCircuit(specifiedCircuit);
-    } else {
-        //data was not in local storage -> fetch, submit to storage, then filter results for specific circuit & execute function
-        circuitsData = fetch(circuitsURL)
-                        .then(resp =>{
-                            if (resp.ok) {return resp.json()}
-                            else {throw new Error(`Problem with fetching ${circuitsURL}`)}
-                        })
-                        .then(data => {
-                            submitLocalStorage(circuitsKey,data);
-                            let filtered = data.filter(d => d.circuitId == circuitId)
-                            displayCircuit(filtered)
-                        })
-    }
+//get results by season
+function getResults(season){
+    let localData = checkLocalStorage(`results${season}`)
+    return localData;
 }
+
+function getCircuit(season,id){
+    let localData = checkLocalStorage(`races${season}`)
+    let circuit = localData.find(d => d.circuit.id == id).circuit
+    return circuit;
+}
+
+// //retrieves circuit data into local storage if not already present, filters data by circuitId, then executes passed function (display circuit probably) - similar structure to getSeasonData, just only looking at circuits
+// function getCircuits(circuitId, displayCircuit){
+//     const circuitsKey = `circuits`;
+//     const circuitsURL = `${domain}/circuits.php`;
+//     let specifiedCircuit;
+
+//     //check local storage for data
+//     let circuitsData = checkLocalStorage(circuitsKey);
+
+//     if(circuitsData){
+//         //data was in local storage -> filter results for specific circuit & execute function
+//         specifiedCircuit = circuitsData.find(c => c.ciruitId == circuitId);
+//         displayCircuit(specifiedCircuit);
+//     } else {
+//         //data was not in local storage -> fetch, submit to storage, then filter results for specific circuit & execute function
+//         circuitsData = fetch(circuitsURL)
+//                         .then(resp =>{
+//                             if (resp.ok) {return resp.json()}
+//                             else {throw new Error(`Problem with fetching ${circuitsURL}`)}
+//                         })
+//                         .then(data => {
+//                             submitLocalStorage(circuitsKey,data);
+//                             let filtered = data.find(d => d.circuitId === circuitId)
+//                             displayCircuit(filtered)
+//                         })
+//     }
+// }
 
 //check to see if data is on local storage - passed the storage key string - returns a JSON object if one existed in storage, or false
 //implementing this like the lab - using a return statment like this : return JSON.parse(localStorage.getItem(key)) || []; - was not behaving as expected. was simply trying to JSON.parse() with a string that said undefined
@@ -123,4 +135,4 @@ function errorHandler(error){
     console.log(error.message);
 }
 
-export {getSeasonData,getLocalData,getCircuits};
+export {getSeasonData,getLocalData,getCircuit,getResults};

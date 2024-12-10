@@ -113,6 +113,9 @@ function activateContent(id){
     hideAllContent();
     //make specified div visible
     document.querySelector(id).style.display = 'block'
+    const content = document.querySelector('.content')
+
+
 }
 
 //returns a div element for buttons - used by multiple functions
@@ -306,6 +309,7 @@ function generateSeasonSelect(){
 
 //generates list of races & appends list to aside with hidden display
 function generateRaceList(season,races){
+    console.log(races[0])
     const aside = document.querySelector('aside');
     const div = createDiv(`races${season}`)
     
@@ -368,7 +372,7 @@ function displayContentHeader(raceId,season){
         const nameP = createP(`<b>${race.name}</b>`)
         const roundP = createP(`<b>Round ${race.round} - </b>`)
         const popupLink = document.createElement('b')
-        popupLink.appendChild(generatePopupLink(`${race.circuit.name}`,'cir',raceId))
+        popupLink.appendChild(generatePopupLink(`${race.circuit.name}`,'cir',race.circuit.id))
         roundP.appendChild(popupLink)
         const locationP = createP(`<b>${race.circuit.location}, ${race.circuit.country}</b>`)
         div.appendChild(h2)
@@ -495,7 +499,7 @@ function createTd(textContent){
 }
 
 //create img element
-function createImg(src, classList,alt){
+function createImg(src,classList,alt){
     const img = document.createElement('img');
     img.src = src
     img.classList.add(classList)
@@ -550,16 +554,45 @@ function generatePopup(){
     
 }
 
+//type: ('d','con','cir') - type of popup
 function populatePopup(type,id){
     const popup = document.querySelector('#popup')   
     clearElement(popup) 
+
+    //x button
+    const x = createImg('./images/x.png','x','Close Button')
+    x.addEventListener('click',closePopupEvent)
+
+    //popup content
+    const popupContent = createDiv('popupContent')
+    //get season
+    const season = document.querySelector('#seasonSelector').value
     
+    switch (type) {
+        case 'd':
+            popupDriverResults(popupContent,season,id)
+            break;
+
+        case 'con':
+            //constructor popup
+            popupConstructorResults(popupContent,season,id)
+            break;
+
+        case 'cir':
+            //circuit popup
+            popupCircuitResults(popupContent,season,id)
+            break;
+    }
+    
+    //close button
     const closeButton = generateButton('Close',' ',' ',closePopupEvent)
     closeButton.removeAttribute('value')
     closeButton.removeAttribute('season')
     closeButton.classList.add('close')
 
+    popup.appendChild(x)
     popup.appendChild(closeButton)
+    popup.appendChild(popupContent)
 
 }
 
@@ -591,3 +624,156 @@ function unBlurScreen(){
     const toBlur = [header,aside,content]
     toBlur.forEach(b => {b.style.filter = 'none'})
 }
+
+function popupDriverResults(popupContent,season,id){
+    //driver popup
+    const d = data.getResults(season);
+    const results = d.filter(r => r.driver.id === id)
+
+    //all entries should be from same driver, doesnt matter which we use for retrieving driver info
+    const driverName = `${results[0].driver.forename} ${results[0].driver.surname}`
+    const driverImg = `./images/todo.png`
+    const driverNationality = results[0].driver.nationality
+    //driver card
+    const card = createDiv('driverCard')
+    const img = createImg(driverImg,'driverImage', driverName)
+    const cardElements = [createH2(driverName),createP(driverNationality),img]
+    cardElements.forEach(c => card.appendChild(c))
+    popupContent.appendChild(card)
+
+    //race results
+    
+    console.log(results);
+
+    const resultsContainer = createDiv('resultsPopupContainer')
+    const h2 = createH2('Race Results')
+    resultsContainer.appendChild(h2);
+
+    //table
+    const table = createTable()
+
+    const tableHead = createTr()
+    const tableHeadings = [createTh(`Rnd`),createTh(`Name`),createTh(`Pos`),createTh(`Points`)]
+    tableHeadings.forEach(t => {tableHead.appendChild(t)})
+
+    table.appendChild(tableHead)
+
+    //table data
+    results.forEach(r => {
+        const tr = createTr()
+        const tdRnd = createTd(r.race.round)
+        const tdName = createTd(r.race.name)
+        const tdPos = createTd(r.position)
+        const tdPoints = createTd(r.points)
+        const tds = [tdRnd,tdName,tdPos,tdPoints]
+        tds.forEach(t => tr.appendChild(t));
+        table.appendChild(tr)
+    })
+
+    resultsContainer.appendChild(table)
+    
+    popupContent.appendChild(resultsContainer)
+
+}
+
+function popupConstructorResults(popupContent,season,id){
+    //constructor popup
+    const d = data.getResults(season);
+    const results = d.filter(r => r.constructor.id === id)
+            
+    //all entries should be from same constructor, doesnt matter which we use for retrieving info
+    const conName = results[0].constructor.name
+    const conNationality = results[0].driver.nationality
+    //driver card
+    const card = createDiv('conCard')
+    const cardElements = [createH2(conName),createP(conNationality)]
+    cardElements.forEach(c => card.appendChild(c))
+    popupContent.appendChild(card)
+
+    //race results
+    
+    console.log(results);
+
+    const resultsContainer = createDiv('resultsPopupContainer')
+    const h2 = createH2('Race Results')
+    resultsContainer.appendChild(h2);
+
+    //table
+    const table = createTable()
+
+    const tableHead = createTr()
+    const tableHeadings = [createTh(`Rnd`),createTh(`Name`),createTh(`Driver`),createTh(`Pos`),createTh(`Points`)]
+    tableHeadings.forEach(t => {tableHead.appendChild(t)})
+
+    table.appendChild(tableHead)
+
+    //table data
+    results.forEach(r => {
+        const tr = createTr()
+        const tdRnd = createTd(r.race.round)
+        const tdName = createTd(r.race.name)
+        const tdDriver = createTd(`${r.driver.forename} ${r.driver.surname}`)
+        const tdPos = createTd(r.position)
+        const tdPoints = createTd(r.points)
+        const tds = [tdRnd,tdName,tdDriver,tdPos,tdPoints]
+        tds.forEach(t => tr.appendChild(t));
+        table.appendChild(tr)
+    })
+
+    resultsContainer.appendChild(table)
+    
+    popupContent.appendChild(resultsContainer)
+}
+
+function popupCircuitResults(popupContent,season,id){
+    const circuit = data.getCircuit(season,id);
+    console.log(circuit);
+
+    const title = createP(`Circuit Details`)
+    const name = createH2(circuit.name)
+    const location = createP(circuit.location)
+    const country = createP(circuit.country)
+    const link = createA();
+    link.setAttribute('href',circuit.url)
+    link.setAttribute('target','_blank')
+    link.textContent = 'Wikipedia'
+    const elements = [title,name,location,country,link]
+    elements.forEach(e => {popupContent.appendChild(e)})
+}
+
+
+// function generateTableResults(data, sortFunction, headings){
+//     const table = createTable()
+
+//     const tableHeadings = createTr()
+//     headings.forEach(h => {
+//         const th = createTh(h)
+//         tableHeadings.appendChild(th)
+//     })
+
+//     table.appendChild(tableHeadings)
+
+//     let sorted;
+//     if (sortFunction != undefined){
+//         sorted = data.sort(sortFunction(a,b))
+//     } else {
+//         sorted = data
+//     }
+
+//     sorted.forEach(d => {
+//             const tr = createTr()
+//             const tdPosition = createTd(d.position)
+//             const tdDriver = createTd('')
+//             tdDriver.appendChild(generatePopupLink(`${d.driver.forename} ${d.driver.surname}`,'d',d.driver.id))
+//             const tdConstructor = createTd('')
+//             tdConstructor.appendChild(generatePopupLink(`${d.constructor.name}`,'con',d.constructor.id))
+//             const tdLaps = createTd(d.laps)
+//             const tdPoints = createTd(d.points)
+//             const tds = [tdPosition,tdDriver,tdConstructor,tdLaps,tdPoints]
+//             tds.forEach(t => tr.appendChild(t))
+//             table.appendChild(tr)
+//     })
+    
+
+//     return table;
+// }

@@ -38,20 +38,12 @@ aside {
     text-align: center;
 }
 
-.contentNoAside {
-    background-color: rgb(24, 26, 27);
-    height: 100%;
-    box-sizing: border-box;
-    padding: 0px 20px 10px;
-    text-align: center;
-}
-
-.content table, .contentNoAside table {
+.content table, #popup table {
     text-align: left;
     width: 100%;
 }
 
-.content tr:nth-child(even), .contentNoAside tr:nth-child(even){
+#popupContent tr:nth-child(even), .content tr:nth-child(even) {
     background-color: rgb(50, 54, 56);
 }
 
@@ -79,13 +71,6 @@ aside {
     grid-template-columns: 1fr 1fr 1fr;
 }
 
-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 70px;
-}
-
 a:link {
     color: white;
 }
@@ -106,21 +91,22 @@ a:visited {
     font-weight: bold;
     text-wrap: nowrap;
     padding: 5px 10px;
-}
-
-.button:hover {
-    cursor: pointer;
+    text-align: center;
 }
 
 .close {
     text-align: center;
     width: fit-content;
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
 }
 
 .button:hover {
     background: rgb(24, 26, 27);
     transition-duration: .4s;
     color: white;
+    cursor: pointer;
 }
 
 .title {
@@ -157,12 +143,29 @@ a:visited {
     text-align: center;
 }
 
+.x {
+    width: 30px;
+    height: 30px;
+    padding: 3px;
+    border-radius: 10px;
+    margin: 10px;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+}
+
+.x:hover{
+    background: rgb(180, 5, 0);
+    transition-duration: .4s;
+    cursor: pointer;
+}
+
 /*Screen centre trick found here: https://css-tricks.com/quick-css-trick-how-to-center-an-object-exactly-in-the-center/ */
 #popup {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 80vw;
+    width: 50vw;
     height: 80vh;
     background: rgb(24, 26, 27);
     border-style: solid;
@@ -170,6 +173,7 @@ a:visited {
     border-radius: 10px;
     border-width: 2px;
     transform: translate(-50%,-50%);
+    overflow: auto;
 }
 
 .popupLink {
@@ -181,9 +185,20 @@ a:visited {
     cursor: pointer;
 }
 
+#popupContent{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+#raceContent {
+    max-width: 850px;
+    margin:auto;
+}
+
 @media only screen and (max-width: 790px){
     body {
-        color: red;
         grid-template-columns: 1fr;
         grid-template-rows: min-content auto auto;
     }
